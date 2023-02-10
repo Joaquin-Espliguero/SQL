@@ -1,0 +1,44 @@
+--Create a grocery store database
+CREATE TABLE store (id INTEGER PRIMARY KEY, product TEXT, price INTEGER, category TEXT, aisle INTEGER, edible TEXT);
+
+INSERT into store VALUES
+(1,"bike",500.89,"sports",5,"no"),
+(2,"apple",3.45,"food",3,"yes"),
+(3,"ground beef",10,"food",4,"yes"),
+(4,"beatles shirt",45,"clothes",44,"no"),
+(5,"toilet",100,"bathroom",443,"no"),
+(6,"tree",400,"garden",324,"no"),
+(7,"swiss army knife",43,"house",1,"no"),
+(8,"light bulb",35,"house",3,"no"),
+(10,"play station",600,"eletronics",4,"no"),
+(11,"xbox",400,"electronics",5,"no"),
+(12,"trainspotting",20,"books",55,"no"),
+(13,"Harry Potter",15,"books",33,"no"),
+(15,"gloves",50,"garden",2,"no"),
+(16,"water",14,"food",34,"yes"),
+(17,"milk",4,"food",33,"yes");
+
+--display product, category, price and aisle ordered by price
+SELECT product, category, price, aisle FROM store
+ORDER BY price DESC;
+
+--display average category price ordered by average price
+SELECT category, avg(price) FROM store
+GROUP BY category ORDER BY avg(price) desc;
+
+--display total price by category ordered by price
+SELECT category, sum(price) FROM store
+GROUP BY category ORDER BY sum(price) desc;
+
+--what are the top 3 most expensive products?
+SELECT product, price FROM store
+ORDER BY price desc LIMIT 3;
+
+--what are the 5 cheapest prodcts?
+SELECT product, price FROM store
+ORDER BY price asc LIMIT 5;
+
+--display price for edible and non-edible products ordered by price
+SELECT edible, sum(price) FROM store
+GROUP BY edible ORDER BY price desc;
+
