@@ -34,6 +34,7 @@ GROUP BY category ORDER BY sum(price) desc;
 SELECT product, price FROM store
 ORDER BY price desc LIMIT 3;
 
+
 --what are the 5 cheapest prodcts?
 SELECT product, price FROM store
 ORDER BY price asc LIMIT 5;
