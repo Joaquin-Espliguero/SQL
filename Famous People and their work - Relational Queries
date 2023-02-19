@@ -1,0 +1,72 @@
+/RELATIONAL QUERIES (JOINs)/
+
+--Create a table with famous people and their type of job
+CREATE TABLE famous_people (id INTEGER PRIMARY KEY, fullname TEXT, job TEXT);
+
+INSERT into famous_people VALUES
+(1,"George Cloney","Thespian"),
+(2,"Javier Bardem","Thespian"),
+(3,"Penelope Cruz","Thespian"),
+(4,"LeBron James","Athlete"),
+(5,"Serena Williams","Athlete"),
+(6,"Beyonce","Singer"),
+(7,"Bobby Womack","Singer"),
+(8,"Gillian Flynn","Writer");
+
+--Create a table with music (album/song) by musician
+CREATE TABLE music (id INTEGER PRIMARY KEY, music TEXT, famouspeople_id INTEGER);
+
+INSERT into music VALUES
+(1,"Renaissance",6),
+(2,"Fly me to the moon",7);
+
+--Create a table with movies by thespian
+CREATE TABLE movies (id INTEGER PRIMARY KEY, movie TEXT, famouspeople_id INTEGER);
+
+INSERT into movies VALUES
+(1,"Pirates of Caribbean",2),
+(2,"Burn After Reading",1),
+(3,"American Crime Story",3);
+
+--Create a table with championships won by athletes
+CREATE TABLE championships (id INTEGER PRIMARY KEY, championship TEXT, famouspeople_id INTEGER);
+
+INSERT into championships VALUES
+(1,"NBA Championship 2020",4),
+(2,"Australian Open 2017",5);
+
+--Create a table with books written by writers
+CREATE TABLE books (id INTEGER PRIMARY KEY, book TEXT, famouspeople_id INTEGER);
+
+INSERT into books VALUES
+(1,"Gone Girl",8);
+
+--Create a table with marriages bewtween famous people using IDs
+CREATE TABLE marriages (id INTEGER PRIMARY KEY, famouspeople1 INTEGER, famouspeople2 INTEGER);
+
+INSERT into marriages VALUES
+(1, 2,3);
+
+-- Display only singers and their songs/albums
+SELECT famous_people.fullname, music.music FROM famous_people
+JOIN music ON famous_people.id = music.famouspeople_id;
+
+--Display famous people and their championships won. If the famous person is not an athlete, write NULL. Show athletes first
+SELECT famous_people.fullname, championships.championship FROM famous_people
+LEFT OUTER JOIN championships ON famous_people.id = championships.famouspeople_id 
+ORDER BY championship DESC;
+
+--Who is married to each other?
+SELECT A.fullname, B.fullname FROM marriages
+JOIN famous_people A
+ON A.id = marriages.famouspeople1
+JOIN famous_people B
+ON B.id = marriages.famouspeople2;
+
+--Display famous people and their work (movies, championships, books, music) in a table showing athletes first.
+SELECT famous_people.fullname, championships.championship, music.music, books.book, movies.movie FROM famous_people
+LEFT OUTER JOIN championships ON famous_people.id = championships.famouspeople_id
+LEFT OUTER JOIN music ON famous_people.id = music.famouspeople_id
+LEFT OUTER JOIN books ON famous_people.id = books.famouspeople_id
+LEFT OUTER JOIN movies ON famous_people.id = movies.famouspeople_id
+ORDER BY championship DESC;
