@@ -1,0 +1,96 @@
+# For this project, I downloaded Spotify data from Kaggle.
+# Then I created a table to insert Spotify data into.
+# Finally, I performed analytics on the data using SQL. 
+
+#Creating the table: 
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness text NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL 
+)
+
+#Then I inserted the Spotify Data .csv into the table.
+
+#Next, I explored the data using the following SQL. 
+
+##Actions taken
+
+--Display songs by artist
+SELECT artist_name, count(track_name) as songs_by_artist FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+ORDER BY songs_by_artist DESC;
+
+--display artists and songs which danceability is in the Top 80 perentile
+SELECT artist_name, track_name FROM BIT_DB.Spotifydata
+ORDER BY danceability DESC
+LIMIT (SELECT count(id)* 0.2 FROM BIT_DB.Spotifydata);
+
+--Display 'Party' and 'Not Party' songs. Include artist, song, energy and danceability. Songs with danceability and energy higher than average are party songs
+SELECT artist_name, track_name, energy, danceability,
+CASE
+WHEN (SELECT sum(energy)/count(track_name) FROM BIT_DB.Spotifydata) < energy AND (SELECT sum(danceability)/count(track_name) FROM BIT_DB.Spotifydata) < danceability THEN 'Party Song'
+ELSE 'Not Party Song'
+END AS Song_category FROM BIT_DB.Spotifydata
+GROUP BY track_name
+ORDER BY Song_category DESC;
+
+--Average popularity of party songs vs not party songs and number of songs in each category
+SELECT 
+CASE
+WHEN (SELECT sum(energy)/count(track_name) FROM BIT_DB.Spotifydata) < energy AND (SELECT sum(danceability)/count(track_name) FROM BIT_DB.Spotifydata) < danceability THEN 'Party Song'
+ELSE 'Not Party Song'
+END AS Song_category, avg(speechiness) AS avg_speechiness, AVG(instrumentalness) as avg_instrumentalness, avg(acousticness) as avg_acousticness, count(track_name) as number_of_songs
+FROM BIT_DB.Spotifydata
+GROUP BY Song_category;
+--Data shows that Party songs have lower average speechiness, instrumentalness and accousticness
+
+--Top 10 artists by popularity (Some artists have more than 1 song)
+SELECT artist_name, avg(popularity) as avg_popularity
+FROM BIT_DB.spotifydata
+GROUP BY artist_name
+ORDER BY avg_popularity DESC
+LIMIT 10;
+
+-- Create a field to categorize songs by popularity. Show songs ordered by popularity
+SELECT artist_name, track_name,
+CASE 
+WHEN row_number ()over (order by popularity DESC) <= 10 THEN 'Top 10'
+WHEN row_number ()over (order by popularity DESC) <= 20 THEN 'Top 20'
+WHEN row_number ()over (order by popularity DESC) <= 30 THEN 'Top 30'
+WHEN row_number ()over (order by popularity DESC) <= 40 THEN 'Top 40'
+WHEN row_number ()over (order by popularity DESC) <= 50 THEN 'Top 50'
+ELSE 'Not in Top 50'
+END AS Popularity_Ranking
+
+FROM BIT_DB.Spotifydata
+ORDER BY Popularity DESC;
+
+--Display popularity, danceability, liveness and energy of the Top 10 songs. Ordered by energy level
+SELECT TRACK_NAME,energy, popularity, danceability, liveness,
+CASE
+WHEN row_number ()over (order by popularity DESC) <= 10 THEN 'Top 10'
+WHEN row_number ()over (order by popularity DESC) <= 20 THEN 'Top 20'
+WHEN row_number ()over (order by popularity DESC) <= 30 THEN 'Top 30'
+WHEN row_number ()over (order by popularity DESC) <= 40 THEN 'Top 40'
+WHEN row_number ()over (order by popularity DESC) <= 50 THEN 'Top 50'
+ELSE 'Not in Top 50'
+END AS Popularity_Ranking
+
+FROM BIT_DB.Spotifydata
+ORDER BY Popularity_Ranking ASC, energy DESC
+LIMIT 10;
