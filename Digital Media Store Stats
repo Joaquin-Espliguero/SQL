@@ -1,0 +1,128 @@
+#Working with the chinook dataset, which represents a digital media store and includes tables for artists, albums, media tracks, invoices, and customers.
+
+
+--Display the number of customers by country
+SELECT country, COUNT(customerid) AS Customers FROM chinook.customers
+
+GROUP BY country
+ORDER BY Customers DESC;
+
+
+--Display total sales by sales agent
+SELECT e.FirstName, e.LastName, e.Title, ROUND(sum(inv.total),2) AS Sales FROM chinook.employees e
+
+LEFT JOIN chinook.customers cust ON e.employeeid = cust.SupportRepid
+
+LEFT JOIN chinook.invoices inv ON cust.Customerid = inv.customerid
+
+WHERE e.title = 'Sales Support Agent'
+
+GROUP BY e.employeeid
+
+ORDER BY Sales DESC;
+
+
+--Display total sales made by each sales agent to each country
+SELECT e.firstName, e.LastName, cust.country, ROUND(sum(inv.total),2) AS Sales FROM chinook.employees e
+
+LEFT JOIN chinook.customers cust ON e.employeeid = cust.SupportRepid
+
+LEFT JOIN chinook.invoices inv ON cust.Customerid = inv.customerid
+
+WHERE e.title = 'Sales Support Agent'
+
+GROUP BY e.firstName, e.lastName, cust.country
+ORDER BY e.employeeid, Sales DESC;
+
+
+--Display total sales by year
+SELECT
+CASE 
+    WHEN inv.invoicedate LIKE '2009%' THEN '2009'
+    WHEN inv.invoicedate LIKE '2010%' THEN '2010'
+    WHEN inv.invoicedate LIKE '2011%' THEN '2011'
+    WHEN inv.invoicedate LIKE '2012%' THEN '2012'
+    WHEN inv.invoicedate LIKE '2013%' THEN '2013'
+    ELSE 'nn'
+    END AS Year,
+    
+ ROUND(sum(inv.total),2) AS Sales
+ 
+FROM chinook.employees e
+
+LEFT JOIN chinook.customers cust ON e.employeeid = cust.SupportRepid
+
+LEFT JOIN chinook.invoices inv ON cust.Customerid = inv.customerid
+
+WHERE e.title = 'Sales Support Agent'
+
+GROUP BY Year;
+ 
+ 
+--Display total sales per year by Sales Agent
+SELECT STRFTIME('%Y', inv.invoicedate) AS Year,
+e.firstName, e.LastName, e.Title, 
+ROUND(SUM(inv.total),2) AS "Total Sales"
+
+FROM chinook.employees e
+
+LEFT JOIN chinook.customers cust ON e.employeeid = cust.SupportRepid
+
+LEFT JOIN chinook.invoices inv ON cust.Customerid = inv.customerid
+
+WHERE e.title = 'Sales Support Agent'
+
+GROUP BY Year, e.firstName, e.LastName, e.Title
+ORDER BY Year, e.firstName, e.LastName;
+
+
+--Display Top Sales Agent by total sales each year. Order by Total Sales
+SELECT STRFTIME('%Y', inv.invoicedate) AS Year,
+e.firstName, e.LastName,
+ROUND(SUM(inv.total),2) AS Total_Sales
+
+FROM chinook.employees e
+
+LEFT JOIN chinook.customers cust ON e.employeeid = cust.SupportRepid
+
+LEFT JOIN chinook.invoices inv ON cust.Customerid = inv.customerid
+
+WHERE e.title = 'Sales Support Agent'
+
+GROUP BY Year, e.firstName, e.LastName
+ORDER BY Total_Sales DESC, Year ASC
+LIMIT 5;
+
+
+--Write a query that includes the purchased track name with each invoice line ID.
+SELECT track.name, invit.invoicelineid FROM chinook.invoice_items invit
+
+JOIN chinook.tracks track ON track.trackid = invit.trackid
+
+ORDER BY invit.invoicelineid;
+
+
+--Write a query that includes the purchased track name AND artist name with each invoice line ID.
+SELECT a.name as Artist, t.name Track, i.invoicelineid FROM chinook.invoice_items i
+
+JOIN chinook.tracks t ON i.trackid = t.trackid
+
+JOIN chinook.albums alb ON alb.albumid = t.albumid
+
+JOIN chinook.artists a ON alb.artistid = a.artistid;
+
+
+--Find a unique/distinct list of billing countries from the Invoice table.
+SELECT DISTINCT BillingCountry FROM chinook.Invoices;
+
+
+--Write a query that includes the purchased track name AND artist name with each invoice line ID.
+SELECT it.invoicelineid, track.name AS Track, artist.name AS Artist FROM chinook.invoice_items it
+
+LEFT JOIN chinook.tracks track ON it.trackid = track.trackid
+
+INNER JOIN chinook.albums alb ON track.albumid = alb.albumid
+
+LEFT JOIN chinook.artists artist ON alb.artistid = artist.artistid
+
+ORDER BY it.invoicelineid ASC;
