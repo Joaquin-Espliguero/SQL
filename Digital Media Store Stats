@@ -126,3 +126,4 @@ INNER JOIN chinook.albums alb ON track.albumid = alb.albumid
 LEFT JOIN chinook.artists artist ON alb.artistid = artist.artistid
 
 ORDER BY it.invoicelineid ASC;
+
